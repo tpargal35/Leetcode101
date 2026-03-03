@@ -25,9 +25,7 @@ The solutions are organized **topic-wise** for better learning and review. Each 
 
 Each solution file follows the naming convention `XXXX-problem-name.ext` (example: `0001-two-sum.py`).
 Each file usually includes:
-- Problem Description and Link
 - Approach Explanation
-- Time and Space Complexity Analysis
 - The Solution Code
 
 ## Setup
