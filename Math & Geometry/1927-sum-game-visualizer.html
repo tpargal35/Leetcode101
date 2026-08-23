@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Dry Run and Visualizer for LeetCode 1927: Sum Game. Understand the mathematical game theory and step-by-step evaluation.">
+    <title>LeetCode 1927 - Sum Game Visualizer & Dry Run</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0e17;
+            --bg-surface: #111827;
+            --bg-card: rgba(17, 24, 39, 0.75);
+            --bg-card-hover: rgba(31, 41, 55, 0.85);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(99, 102, 241, 0.35);
+
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-amber: #f59e0b;
+
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.2);
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px 60px;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(236, 72, 153, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 10px 0 10px;
+        }
+
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 4px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .badge.gold {
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .badge.cyan {
+            color: var(--accent-cyan);
+            border-color: rgba(6, 182, 212, 0.3);
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .badge.purple {
+            color: var(--accent-purple);
+            border-color: rgba(168, 85, 247, 0.3);
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 680px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        /* Input Controls */
+        .input-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            font-size: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            color: #fff;
+            letter-spacing: 0.15em;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .presets-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .presets-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-right: 4px;
+        }
+
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preset-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--accent-indigo);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            color: white;
+            font-weight: 700;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            filter: brightness(1.1);
+        }
+
+        /* Player Controls & Animation */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .playback-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .ctrl-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .ctrl-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .speed-control select {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Visual Board: Left Half vs Right Half */
+        .visual-board {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .board-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .halves-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 850px) {
+            .halves-container {
+                grid-template-columns: 1fr;
+            }
+            .mid-divider {
+                display: none;
+            }
+        }
+
+        .half-panel {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            border: 1px solid;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .half-panel.left-half {
+            border-color: rgba(6, 182, 212, 0.3);
+            background: linear-gradient(180deg, rgba(6, 182, 212, 0.08) 0%, rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        .half-panel.right-half {
+            border-color: rgba(236, 72, 153, 0.3);
+            background: linear-gradient(180deg, rgba(236, 72, 153, 0.08) 0%, rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        .half-tag {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .half-panel.left-half .half-tag {
+            color: var(--accent-cyan);
+        }
+
+        .half-panel.right-half .half-tag {
+            color: var(--accent-pink);
+        }
+
+        .character-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 80px;
+            align-items: center;
+        }
+
+        .char-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            min-width: 44px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .char-card .idx-chip {
+            font-size: 0.65rem;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .char-card .char-val {
+            font-size: 1.35rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .char-card.is-question {
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.4);
+            background: rgba(251, 191, 36, 0.08);
+        }
+
+        .char-card.is-digit {
+            color: #ffffff;
+        }
+
+        .char-card.active-scan {
+            transform: scale(1.15) translateY(-4px);
+            border-color: #ffffff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        .char-card.scanned {
+            opacity: 0.9;
+        }
+
+        .char-card.unscanned {
+            opacity: 0.35;
+        }
+
+        .mid-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+        }
+
+        .mid-line {
+            width: 2px;
+            flex: 1;
+            background: linear-gradient(180deg, transparent, var(--border-color), transparent);
+        }
+
+        .mid-badge {
+            font-size: 0.7rem;
+            font-weight: 800;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-muted);
+            background: var(--bg-surface);
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            margin: 8px 0;
+            white-space: nowrap;
+        }
+
+        /* Stats Row Inside Halves */
+        .half-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .stat-number {
+            font-size: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Formula & Evaluation Section */
+        .math-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 850px) {
+            .math-board {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .formula-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .math-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .math-box {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .equation-line {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hl-suma { color: var(--accent-cyan); font-weight: 700; }
+        .hl-q { color: #fbbf24; font-weight: 700; }
+        .hl-math { color: var(--accent-purple); font-weight: 700; }
+
+        .result-banner {
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid;
+            transition: all 0.3s ease;
+        }
+
+        .result-banner.alice-wins {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(168, 85, 247, 0.15));
+            border-color: var(--accent-rose);
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.25);
+        }
+
+        .result-banner.bob-wins {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+            border-color: var(--accent-emerald);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.25);
+        }
+
+        .result-banner .winner-tag {
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .result-banner.alice-wins .winner-tag { color: var(--accent-rose); }
+        .result-banner.bob-wins .winner-tag { color: var(--accent-emerald); }
+
+        .result-banner .outcome-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .result-banner .explanation-sub {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            max-width: 400px;
+            line-height: 1.4;
+        }
+
+        /* Step Log */
+        .log-panel {
+            max-height: 250px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            display: flex;
+            gap: 12px;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.02);
+            align-items: center;
+            border-left: 3px solid transparent;
+        }
+
+        .log-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-left-color: var(--accent-indigo);
+            color: #fff;
+        }
+
+        .log-item .log-step { color: var(--text-muted); font-size: 0.75rem; min-width: 60px; }
+        .log-item .log-char { font-weight: 700; min-width: 80px; }
+        .log-item .log-effect { color: var(--text-secondary); flex: 1; }
+
+        /* Code View */
+        .code-box {
+            background: #070a10;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            color: #e2e8f0;
+        }
+
+        .kw { color: #f43f5e; font-weight: 600; }
+        .fn { color: #38bdf8; font-weight: 600; }
+        .num { color: #fbbf24; }
+        .cm { color: #64748b; font-style: italic; }
+        .var { color: #e2e8f0; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding-top: 20px;
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <header>
+        <div class="badge-row">
+            <span class="badge gold">LeetCode 1927</span>
+            <span class="badge cyan">Game Theory</span>
+            <span class="badge purple">Mathematical Invariant</span>
+            <span class="badge">Medium</span>
+        </div>
+        <h1>Sum Game Visualizer & Dry Run</h1>
+        <p class="subtitle">
+            Interactive step-by-step dry run & visual proof of optimal player strategy between Alice (wants inequality) and Bob (forces equality).
+        </p>
+    </header>
+
+    <!-- Interactive Input & Presets -->
+    <section class="glass-card input-panel">
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="text" id="numInput" value="?3295???" placeholder="Enter even-length string with 0-9 and ?" maxlength="30" spellcheck="false" autocomplete="off">
+            </div>
+            <button class="btn-primary" id="runBtn" onclick="initSimulation()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Run Simulation
+            </button>
+        </div>
+
+        <div class="presets-row">
+            <span class="presets-label">Examples:</span>
+            <button class="preset-btn" onclick="setPreset('5023')">1. "5023" (False)</button>
+            <button class="preset-btn" onclick="setPreset('25??')">2. "25??" (True)</button>
+            <button class="preset-btn" onclick="setPreset('?3295???')">3. "?3295???" (False)</button>
+            <button class="preset-btn" onclick="setPreset('????')">4. "????" (False)</button>
+            <button class="preset-btn" onclick="setPreset('?0??5?')">5. "?0??5?" (True - Odd ?)</button>
+            <button class="preset-btn" onclick="setPreset('90?0??')">6. "90?0??" (False)</button>
+        </div>
+
+        <div class="controls-bar">
+            <div class="playback-buttons">
+                <button class="ctrl-btn" id="btnPrev" onclick="stepPrev()" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    Previous
+                </button>
+                <button class="ctrl-btn" id="btnPlay" onclick="togglePlay()">
+                    <span id="playIcon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></span>
+                    <span id="playText">Play</span>
+                </button>
+                <button class="ctrl-btn" id="btnNext" onclick="stepNext()">
+                    Next
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                <button class="ctrl-btn" id="btnReset" onclick="resetToBeginning()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                    Reset
+                </button>
+            </div>
+
+            <div class="speed-control">
+                <span>Speed:</span>
+                <select id="speedSelect" onchange="updateSpeed()">
+                    <option value="1200">0.5x (Slow)</option>
+                    <option value="600" selected>1.0x (Normal)</option>
+                    <option value="300">2.0x (Fast)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Board -->
+    <section class="glass-card visual-board">
+        <div class="board-header">
+            <div class="board-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                Array Representation & State Inspection
+            </div>
+            <div id="stepIndicator" style="font-family: 'Fira Code', monospace; font-size: 0.9rem; color: var(--text-muted);">
+                Step: 0 / 0
+            </div>
+        </div>
+
+        <div class="halves-container">
+            <!-- Left Half -->
+            <div class="half-panel left-half">
+                <div class="half-tag">
+                    <span>LEFT HALF (Indices 0 to <span id="leftMaxIdx">0</span>)</span>
+                    <span id="leftProgressTag" style="font-size: 0.75rem; opacity: 0.8;">[ sum1, q1 ]</span>
+                </div>
+                <div class="character-slots" id="leftSlots"></div>
+                <div class="half-stats">
+                    <div class="stat-box">
+                        <span class="stat-label">sum1 (Digits)</span>
+                        <span class="stat-number" id="statSum1">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">q1 ('?' Count)</span>
+                        <span class="stat-number" id="statQ1" style="color: #fbbf24;">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mid Divider -->
+            <div class="mid-divider">
+                <div class="mid-line"></div>
+                <div class="mid-badge">MID SPLIT</div>
+                <div class="mid-line"></div>
+            </div>
+
+            <!-- Right Half -->
+            <div class="half-panel right-half">
+                <div class="half-tag">
+                    <span>RIGHT HALF (Indices <span id="rightMinIdx">0</span> to <span id="rightMaxIdx">0</span>)</span>
+                    <span id="rightProgressTag" style="font-size: 0.75rem; opacity: 0.8;">[ sum2, q2 ]</span>
+                </div>
+                <div class="character-slots" id="rightSlots"></div>
+                <div class="half-stats">
+                    <div class="stat-box">
+                        <span class="stat-label">sum2 (Digits)</span>
+                        <span class="stat-number" id="statSum2">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">q2 ('?' Count)</span>
+                        <span class="stat-number" id="statQ2" style="color: #fbbf24;">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mathematical Evaluation Board & Outcome -->
+    <section class="math-board">
+        <!-- Live Evaluation Breakdown -->
+        <div class="glass-card formula-card">
+            <div class="math-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Mathematical Invariant Breakdown
+            </div>
+
+            <div class="math-box">
+                <div class="equation-line">
+                    <span>suma = sum1 - sum2 =</span>
+                    <span class="hl-suma" id="eqSuma">0</span>
+                </div>
+                <div class="equation-line">
+                    <span>q = q1 - q2 =</span>
+                    <span class="hl-q" id="eqQ">0</span>
+                </div>
+                <div class="equation-line" style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; margin-top: 4px;">
+                    <span>Formula:</span>
+                    <span class="hl-math">(suma * 2 + q * 9)</span>
+                </div>
+                <div class="equation-line">
+                    <span>Calculation:</span>
+                    <span id="eqCalc" style="font-family: 'Fira Code', monospace; color: #fff;">(0 * 2) + (0 * 9) = 0</span>
+                </div>
+                <div class="equation-line">
+                    <span>Condition:</span>
+                    <span id="eqCondition" style="font-family: 'Fira Code', monospace;">0 != 0 &rarr; <strong>False</strong></span>
+                </div>
+            </div>
+
+            <!-- Execution Step Log -->
+            <div class="log-panel" id="stepLog"></div>
+        </div>
+
+        <!-- Outcome Winner Card -->
+        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="math-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-2.34"></path><path d="M14 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                Game Outcome & Game Theory Proof
+            </div>
+
+            <div class="result-banner" id="resultBanner">
+                <div class="winner-tag" id="winnerTag">OUTCOME</div>
+                <div class="outcome-title" id="outcomeTitle">return False</div>
+                <div class="explanation-sub" id="explanationSub">
+                    Bob can guarantee both halves sum to the same amount.
+                </div>
+            </div>
+
+            <!-- Python Snippet Reference -->
+            <div class="code-box">
+<span class="kw">def</span> <span class="fn">sumGame</span>(num: <span class="var">str</span>) -> <span class="var">bool</span>:
+    mid = <span class="fn">len</span>(num) // <span class="num">2</span>
+    sum1 = <span class="fn">sum</span>(<span class="fn">int</span>(c) <span class="kw">for</span> c <span class="kw">in</span> num[:mid] <span class="kw">if</span> c != <span class="num">'?'</span>)
+    sum2 = <span class="fn">sum</span>(<span class="fn">int</span>(c) <span class="kw">for</span> c <span class="kw">in</span> num[mid:] <span class="kw">if</span> c != <span class="num">'?'</span>)
+    q = num[:mid].<span class="fn">count</span>(<span class="num">'?'</span>) - num[mid:].<span class="fn">count</span>(<span class="num">'?'</span>)
+    
+    <span class="cm"># Bob can pair '?' on same side so each pair sums to 9</span>
+    <span class="kw">return</span> ((sum1 - sum2) * <span class="num">2</span> + q * <span class="num">9</span>) != <span class="num">0</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        LeetCode 101 Pair Programming | 1927. Sum Game
+    </footer>
+
+</div>
+
+<script>
+    let rawStr = "?3295???";
+    let n = 0;
+    let mid = 0;
+    let steps = [];
+    let currentStepIdx = 0;
+    let isPlaying = false;
+    let timer = null;
+    let speed = 600;
+
+    function setPreset(val) {
+        document.getElementById('numInput').value = val;
+        initSimulation();
+    }
+
+    function updateSpeed() {
+        speed = parseInt(document.getElementById('speedSelect').value);
+        if (isPlaying) {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                if (currentStepIdx < steps.length - 1) {
+                    stepNext();
+                } else {
+                    pause();
+                }
+            }, speed);
+        }
+    }
+
+    function initSimulation() {
+        pause();
+        const inputVal = document.getElementById('numInput').value.trim();
+        if (!inputVal || inputVal.length % 2 !== 0) {
+            alert("Please enter a valid non-empty string with an EVEN length!");
+            return;
+        }
+
+        // Validate characters
+        for (let char of inputVal) {
+            if (char !== '?' && (char < '0' || char > '9')) {
+                alert(`Invalid character '${char}'. Only '0'-'9' and '?' are allowed.`);
+                return;
+            }
+        }
+
+        rawStr = inputVal;
+        n = rawStr.length;
+        mid = Math.floor(n / 2);
+
+        document.getElementById('leftMaxIdx').innerText = mid - 1;
+        document.getElementById('rightMinIdx').innerText = mid;
+        document.getElementById('rightMaxIdx').innerText = n - 1;
+
+        // Build Steps
+        steps = [];
+        let s1 = 0, s2 = 0, q1 = 0, q2 = 0;
+
+        // Step 0: initial state
+        steps.push({
+            currIdx: -1,
+            sum1: 0,
+            sum2: 0,
+            q1: 0,
+            q2: 0,
+            qDiff: 0,
+            suma: 0,
+            description: "Initial state before scanning"
+        });
+
+        for (let i = 0; i < n; i++) {
+            const char = rawStr[i];
+            let effect = "";
+            if (i < mid) {
+                if (char === '?') {
+                    q1++;
+                    effect = `Left '?': q1 increases to ${q1}`;
+                } else {
+                    const digit = parseInt(char);
+                    s1 += digit;
+                    effect = `Left digit '${digit}': sum1 increases to ${s1}`;
+                }
+            } else {
+                if (char === '?') {
+                    q2++;
+                    effect = `Right '?': q2 increases to ${q2}`;
+                } else {
+                    const digit = parseInt(char);
+                    s2 += digit;
+                    effect = `Right digit '${digit}': sum2 increases to ${s2}`;
+                }
+            }
+
+            steps.push({
+                currIdx: i,
+                sum1: s1,
+                sum2: s2,
+                q1: q1,
+                q2: q2,
+                qDiff: q1 - q2,
+                suma: s1 - s2,
+                char: char,
+                description: effect
+            });
+        }
+
+        renderSlots();
+        renderLog();
+        renderStep(0);
+    }
+
+    function renderSlots() {
+        const leftContainer = document.getElementById('leftSlots');
+        const rightContainer = document.getElementById('rightSlots');
+        leftContainer.innerHTML = '';
+        rightContainer.innerHTML = '';
+
+        for (let i = 0; i < n; i++) {
+            const char = rawStr[i];
+            const card = document.createElement('div');
+            card.id = `char-card-${i}`;
+            card.className = `char-card unscanned ${char === '?' ? 'is-question' : 'is-digit'}`;
+
+            const idxSpan = document.createElement('span');
+            idxSpan.className = 'idx-chip';
+            idxSpan.innerText = i;
+
+            const valSpan = document.createElement('span');
+            valSpan.className = 'char-val';
+            valSpan.innerText = char;
+
+            card.appendChild(idxSpan);
+            card.appendChild(valSpan);
+
+            if (i < mid) {
+                leftContainer.appendChild(card);
+            } else {
+                rightContainer.appendChild(card);
+            }
+        }
+    }
+
+    function renderLog() {
+        const logContainer = document.getElementById('stepLog');
+        logContainer.innerHTML = '';
+
+        steps.forEach((step, idx) => {
+            if (idx === 0) return;
+            const item = document.createElement('div');
+            item.id = `log-item-${idx}`;
+            item.className = 'log-item';
+            item.onclick = () => renderStep(idx);
+            item.innerHTML = `
+                <span class="log-step">Step ${idx}</span>
+                <span class="log-char">num[${step.currIdx}] = '${step.char}'</span>
+                <span class="log-effect">${step.description}</span>
+            `;
+            logContainer.appendChild(item);
+        });
+    }
+
+    function renderStep(idx) {
+        currentStepIdx = idx;
+        const state = steps[idx];
+
+        // Update step counter
+        document.getElementById('stepIndicator').innerText = `Step: ${idx} / ${steps.length - 1}`;
+        document.getElementById('btnPrev').disabled = (idx === 0);
+        document.getElementById('btnNext').disabled = (idx === steps.length - 1);
+
+        // Update slot styling
+        for (let i = 0; i < n; i++) {
+            const card = document.getElementById(`char-card-${i}`);
+            if (!card) continue;
+            card.classList.remove('active-scan', 'scanned', 'unscanned');
+
+            if (i < state.currIdx) {
+                card.classList.add('scanned');
+            } else if (i === state.currIdx) {
+                card.classList.add('active-scan');
+            } else {
+                card.classList.add('unscanned');
+            }
+        }
+
+        // Highlight active log item
+        for (let i = 1; i < steps.length; i++) {
+            const logEl = document.getElementById(`log-item-${i}`);
+            if (logEl) {
+                if (i === idx) {
+                    logEl.classList.add('active');
+                    logEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    logEl.classList.remove('active');
+                }
+            }
+        }
+
+        // Update Numbers
+        document.getElementById('statSum1').innerText = state.sum1;
+        document.getElementById('statQ1').innerText = state.q1;
+        document.getElementById('statSum2').innerText = state.sum2;
+        document.getElementById('statQ2').innerText = state.q2;
+
+        const suma = state.suma;
+        const q = state.qDiff;
+        const calcVal = (suma * 2) + (q * 9);
+        const aliceWins = calcVal !== 0;
+
+        document.getElementById('eqSuma').innerText = `${state.sum1} - ${state.sum2} = ${suma}`;
+        document.getElementById('eqQ').innerText = `${state.q1} - ${state.q2} = ${q}`;
+        document.getElementById('eqCalc').innerText = `(${suma} * 2) + (${q} * 9) = ${suma * 2} + ${q * 9} = ${calcVal}`;
+        document.getElementById('eqCondition').innerHTML = `${calcVal} != 0 &rarr; <strong style="color: ${aliceWins ? 'var(--accent-rose)' : 'var(--accent-emerald)'}">${aliceWins ? 'True (Alice Wins)' : 'False (Bob Wins)'}</strong>`;
+
+        // Update Result Banner
+        const banner = document.getElementById('resultBanner');
+        const winnerTag = document.getElementById('winnerTag');
+        const outcomeTitle = document.getElementById('outcomeTitle');
+        const explanationSub = document.getElementById('explanationSub');
+
+        banner.classList.remove('alice-wins', 'bob-wins');
+
+        if (aliceWins) {
+            banner.classList.add('alice-wins');
+            winnerTag.innerText = "ALICE WINS";
+            outcomeTitle.innerText = "return True";
+            if (Math.abs(q) % 2 !== 0) {
+                explanationSub.innerText = `Odd question mark difference (|q| = ${Math.abs(q)}). Alice makes the final uncountered move and forces an unequal sum.`;
+            } else {
+                explanationSub.innerText = `Bob's pair defense adds ${(Math.abs(q)/2)*9} to one side, but the known sum difference is ${Math.abs(suma)}. Bob cannot balance the sides!`;
+            }
+        } else {
+            banner.classList.add('bob-wins');
+            winnerTag.innerText = "BOB WINS (SUMS EQUAL)";
+            outcomeTitle.innerText = "return False";
+            explanationSub.innerText = `Surplus '?' pairs add exactly ${(Math.abs(q)/2)*9} to the lagging side, perfectly balancing the known difference of ${Math.abs(suma)}. Bob guarantees equal sums!`;
+        }
+    }
+
+    function stepNext() {
+        if (currentStepIdx < steps.length - 1) {
+            renderStep(currentStepIdx + 1);
+        } else {
+            pause();
+        }
+    }
+
+    function stepPrev() {
+        if (currentStepIdx > 0) {
+            renderStep(currentStepIdx - 1);
+        }
+    }
+
+    function resetToBeginning() {
+        pause();
+        renderStep(0);
+    }
+
+    function togglePlay() {
+        if (isPlaying) {
+            pause();
+        } else {
+            play();
+        }
+    }
+
+    function play() {
+        if (currentStepIdx === steps.length - 1) {
+            renderStep(0);
+        }
+        isPlaying = true;
+        document.getElementById('playText').innerText = "Pause";
+        document.getElementById('playIcon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+
+        timer = setInterval(() => {
+            if (currentStepIdx < steps.length - 1) {
+                stepNext();
+            } else {
+                pause();
+            }
+        }, speed);
+    }
+
+    function pause() {
+        isPlaying = false;
+        clearInterval(timer);
+        document.getElementById('playText').innerText = "Play";
+        document.getElementById('playIcon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    }
+
+    // Auto-run on load
+    window.addEventListener('DOMContentLoaded', () => {
+        initSimulation();
+    });
+</script>
+
+</body>
+</html>
