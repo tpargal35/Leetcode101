@@ -1,7 +1,17 @@
 from typing import List, Optional, Dict
 
 def myPow(x: float, n: int) -> float:
-    pass
+    ans = 1
+    neg = 1 if n < 0 else 0
+    n = abs(n) 
+    while(n>0):
+        if (n % 2 != 0):
+            ans = ans * x
+            n = n - 1
+        else:
+            x = x * x
+            n = n / 2
+    return ans if neg == 0 else 1 / ans              
 
 # Example 1
 x1 = 2.00000
